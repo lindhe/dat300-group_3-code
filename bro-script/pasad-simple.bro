@@ -28,7 +28,7 @@ redef record connection += {
 
 event bro_init() &priority=5
 	{
-	Log::create_stream(Pasad::LOG, [$columns=Info, $path="pasad"]);
+	Log::create_stream(Pasad::LOG, [$columns=Info, $path="pasad-simple"]);
 	}
 
 event modbus_read_holding_registers_request(c: connection, headers: ModbusHeaders, start_address: count, quantity: count)
