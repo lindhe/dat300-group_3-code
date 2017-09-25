@@ -16,7 +16,7 @@ export {
 		rtype: 		string	&log;
 		tid_request:	count	&log;
 		tid_response:	count	&log &optional;
-		start_adress:	count	&log;
+		start_address:	count	&log;
 		quantity:	count	&log;
 		registers:	ModbusRegisters &log &optional;
 	};
@@ -31,9 +31,9 @@ event bro_init() &priority=5
 	Log::create_stream(Pasad::LOG, [$columns=Info, $path="pasad"]);
 	}
 
-event modbus_read_holding_registers_request(c: connection, headers: ModbusHeaders, start_adress: count, quantity: count)
+event modbus_read_holding_registers_request(c: connection, headers: ModbusHeaders, start_address: count, quantity: count)
 	{
-	local rec: Info = [$ts_request=network_time(), $rtype="holding", $tid_request=headers$tid, $start_adress=start_adress, $quantity=quantity];
+	local rec: Info = [$ts_request=network_time(), $rtype="holding", $tid_request=headers$tid, $start_address=start_address, $quantity=quantity];
 	c$pasad = rec;
 	}
 
