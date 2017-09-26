@@ -16,6 +16,8 @@ export {
 		rtype: 		string	&log;
 		tid_request:	count	&log;
 		tid_response:	count	&log &optional;
+		ip_orig:	addr	&log;
+		ip_resp:	addr	&log;
 		start_address:	count	&log;
 		quantity:	count	&log;
 		registers:	ModbusRegisters &log &optional;
@@ -33,7 +35,15 @@ event bro_init() &priority=5
 
 event modbus_read_holding_registers_request(c: connection, headers: ModbusHeaders, start_address: count, quantity: count)
 	{
-	local rec: Info = [$ts_request=network_time(), $rtype="holding", $tid_request=headers$tid, $start_address=start_address, $quantity=quantity];
+	local rec: Info = [
+		$ts_request=network_time(),
+		$rtype="holding",
+		$tid_request=headers$tid,
+		$start_address=start_address,
+		$quantity=quantity,
+		$ip_orig=c$id$orig_h,
+		$ip_resp=c$id$resp_h
+	];
 	c$pasad = rec;
 	}
 
