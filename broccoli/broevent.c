@@ -1,7 +1,5 @@
-#ifdef BROCCOLI
-#include <broccoli.h>
-#endif
 #include "includes/fifoqueue.h"
+#include "includes/broevent.h"
 
 char *host_default = "127.0.0.1";
 char *port_default = "47760";
@@ -59,13 +57,4 @@ bro_event_listener()
     }
 
     bro_conn_delete(bc);
-}
-
-    int
-main(int argc, char **argv)
-{
-    Fifo_q * q = init_queue(5);
-
-    free(q);
-    return 0;
 }
