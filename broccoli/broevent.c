@@ -3,20 +3,22 @@
 
 char *host_default = "127.0.0.1";
 char *port_default = "47760";
+Fifo_q * q;
 
     static void
 bro_response(BroConn *conn, void *data, uint64* registers, uint64* uid)
 {
-    printf("Received value %"PRIu64" from uid=%"PRIu64"\n",*registers,*uid);
+    add_to_queue(q,create_sensor_object(*registers,*uid));
+    //printf("Received value %"PRIu64" from uid=%"PRIu64"\n",*registers,*uid);
 
     conn = NULL;
     data = NULL;
 }
 
-    void
-bro_event_listener()
+    void *
+bro_event_listener(void * args)
 {
-
+    q = (Fifo_q *) args;
     int fd = -1;
     BroConn *bc = NULL;
     bro_init(NULL);
