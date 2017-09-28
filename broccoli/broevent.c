@@ -7,7 +7,7 @@ char *host_default = "127.0.0.1";
 char *port_default = "47760";
 
     static void
-bro_pasad_response(BroConn *conn, void *data, uint64* registers, uint64* uid)
+bro_response(BroConn *conn, void *data, uint64* registers, uint64* uid)
 {
     printf("Received value %"PRIu64" from uid=%"PRIu64"\n",*registers,*uid);
 
@@ -33,7 +33,7 @@ bro_event_listener()
     bro_debug_calltrace = 0;
     bro_debug_messages  = 0;
 
-    bro_event_registry_add(bc, "response",(BroEventFunc) bro_pasad_response, NULL);
+    bro_event_registry_add(bc, "response",(BroEventFunc) bro_response, NULL);
 
     if (! bro_conn_connect(bc))
     {
