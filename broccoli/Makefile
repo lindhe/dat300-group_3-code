@@ -2,15 +2,15 @@ CC=gcc
 CFLAGS = -c -Wall -I/usr/local/include -I/usr/local/include -DBROCCOLI 
 LDFLAGS =  -L/usr/local/lib -lbroccoli
 
-all: pasad
+all: broevent
 
-pasad: pasad.o fifoqueue.o
-	$(CC) pasad.o fifoqueue.o -o pasad $(LDFLAGS)
+broevent: broevent.o fifoqueue.o
+	$(CC) broevent.o fifoqueue.o -o broevent $(LDFLAGS)
 
-pasad.o: pasad.c
-	$(CC) $(CFLAGS) pasad.c
+broevent.o: broevent.c
+	$(CC) $(CFLAGS) broevent.c
 
 fifoqueue.o: fifoqueue.c
 	$(CC) -c -Wall fifoqueue.c
 clean:
-	rm *.o pasad
+	rm *.o broevent

@@ -8,7 +8,7 @@ redef Communication::listen_ssl = F;
 global response: event(register: count, uid: count);
 
 redef Communication::nodes += {
-	["pasad"] = [$host = 127.0.0.1, $events = /pasad/, $connect=F, $ssl=F]
+	["broevent"] = [$host = 127.0.0.1, $events = /broevent/, $connect=F, $ssl=F]
 };
 
 event modbus_read_holding_registers_request(c: connection, headers: ModbusHeaders, start_adress: count, quantity: count)
