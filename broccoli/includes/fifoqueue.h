@@ -4,6 +4,8 @@
 
 Fifo_q * init_queue(int size);
 
+Sensor_t * create_sensor_object(int value, int uid);
+
 boolean is_full(Fifo_q * q);
 
 boolean is_empty(Fifo_q * q);

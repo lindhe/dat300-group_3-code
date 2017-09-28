@@ -2,4 +2,4 @@
 #include <broccoli.h>
 #endif
 
-void bro_event_listener();
+void * bro_event_listener(void * args);

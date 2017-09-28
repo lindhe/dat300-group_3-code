@@ -1,6 +1,6 @@
 CC=gcc
 CFLAGS = -c -Wall -I/usr/local/include -I/usr/local/include -DBROCCOLI 
-LDFLAGS =  -L/usr/local/lib -lbroccoli
+LDFLAGS =  -L/usr/local/lib -lbroccoli -pthread
 
 all: midbropasad
 
