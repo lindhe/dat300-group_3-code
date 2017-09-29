@@ -20,7 +20,8 @@ main(int argc, char **argv)
     start_data_capture(q);
     while(true){
         printf("Main thread\n");
-        sleep(2);
+        sleep(10);
+        print_queue(q);
     }
     free(q);
     return 0;
