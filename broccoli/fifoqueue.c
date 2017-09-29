@@ -2,6 +2,7 @@
 #include <pthread.h>
 
 pthread_mutex_t lock;
+pthread_mutex_t bufferEmptyBlock;
 
     Fifo_q * 
 init_queue(int size)
@@ -11,11 +12,15 @@ init_queue(int size)
     q->tail = NULL;
     q->maxSize = size;
     q->currentSize = 0;
-
     if (pthread_mutex_init(&lock, NULL) != 0)
     {
         printf("WARNING: Couldn't initialize lock\n");
     }
+    if (pthread_mutex_init(&bufferEmptyBlock, NULL) != 0)
+    {
+        printf("WARNING: Couldn't initialize blocking lock\n");
+    }
+    pthread_mutex_lock(&bufferEmptyBlock);
     return q;
 }
 
@@ -52,14 +57,14 @@ add_to_queue(Fifo_q * q, Sensor_t * sensor)
     Queue_t * new_elem = (Queue_t *) malloc(sizeof(Queue_t *));
     new_elem->next = NULL;
     new_elem->sensor = sensor;
-    if(is_empty(q))
+    if(is_empty(q)){
         q->head = new_elem;
-    else
+        pthread_mutex_unlock(&bufferEmptyBlock);
+    }else
         q->tail->next = new_elem;
     q->tail = new_elem;
     q->currentSize++;
     pthread_mutex_unlock(&lock);
-    print_queue(q);
     return 1;
 }
 
@@ -67,11 +72,11 @@ add_to_queue(Fifo_q * q, Sensor_t * sensor)
 pop_from_queue(Fifo_q * q)
 {
 
-    pthread_mutex_lock(&lock);
     if(is_empty(q)){
         perror("The queue is empty");
-        exit(-1);
+        pthread_mutex_lock(&bufferEmptyBlock);
     }
+    pthread_mutex_lock(&lock);
     Queue_t * head = q->head;
     q->head = q->head->next;
     Sensor_t * sensor = head->sensor;
