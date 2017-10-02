@@ -54,7 +54,7 @@ add_to_queue(Fifo_q * q, Sensor_t * sensor)
     else if(is_full(q)){
         return -1;
     }
-    Queue_t * new_elem = (Queue_t *) malloc(sizeof(Queue_t *));
+    Queue_t * new_elem = (Queue_t *) malloc(sizeof(Queue_t));
     new_elem->next = NULL;
     new_elem->sensor = sensor;
     if(is_empty(q)){
@@ -78,7 +78,7 @@ pop_from_queue(Fifo_q * q)
     }
     pthread_mutex_lock(&lock);
     Queue_t * head = q->head;
-    q->head = q->head->next;
+    q->head = head->next;
     Sensor_t * sensor = head->sensor;
     free(head);
     q->currentSize--;
@@ -88,7 +88,7 @@ pop_from_queue(Fifo_q * q)
 
     Sensor_t *
 create_sensor_object(int value, int uid){
-    Sensor_t * sensor = (Sensor_t *) malloc(sizeof(Sensor_t *));
+    Sensor_t * sensor = (Sensor_t *) malloc(sizeof(Sensor_t));
     sensor->value = value;
     sensor->uid = uid;
     return sensor;
