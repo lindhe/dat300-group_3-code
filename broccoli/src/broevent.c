@@ -1,5 +1,8 @@
-#include "includes/fifoqueue.h"
-#include "includes/broevent.h"
+#include "fifoqueue.h"
+#include "broevent.h"
+#ifdef BROCCOLI
+#include <broccoli.h>
+#endif
 
 char *host_default = "127.0.0.1";
 char *port_default = "47760";

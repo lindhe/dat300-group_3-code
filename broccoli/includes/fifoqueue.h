@@ -1,5 +1,5 @@
-#include <stdlib.h>
-#include <stdio.h>
+#ifndef FIFOQUEUE_H
+#define FIFOQUEUE_H
 #include "types.h"
 
 Fifo_q * init_queue(int size);
@@ -15,3 +15,4 @@ int add_to_queue(Fifo_q * q, Sensor_t * sensor);
 Sensor_t * pop_from_queue(Fifo_q * q);
 
 void print_queue(Fifo_q * q);
+#endif
