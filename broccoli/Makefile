@@ -5,7 +5,10 @@ LDFLAGS =  -L/usr/local/lib -lbroccoli -pthread
 SRC = midbropasad.c broevent.c fifoqueue.c
 OBJ = $(patsubst %.c, build/%.o, $(SRC))
 
-all: bin/midbropasad bin/tests
+all: dirs bin/midbropasad bin/tests
+
+dirs:
+	mkdir -p build bin
 
 bin/midbropasad: $(OBJ)
 	$(CC) $^ -o bin/midbropasad $(LDFLAGS)
