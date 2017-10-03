@@ -1,5 +1,10 @@
-#include "includes/fifoqueue.h"
-#include "includes/broevent.h"
+#include <pthread.h>
+#include <unistd.h>
+#include "fifoqueue.h"
+#include "broevent.h"
+#ifdef BROCCOLI
+#include <broccoli.h>
+#endif
 
     void
 start_data_capture(Fifo_q * q)

@@ -1,26 +1,23 @@
 CC=gcc
-CFLAGS = -c -Wall -I/usr/local/include -I/usr/local/include -DBROCCOLI 
+CFLAGS =-c -DBROCCOLI
+INC =-I/usr/local/include -I/usr/local/include -I./includes
 LDFLAGS =  -L/usr/local/lib -lbroccoli -pthread
+SRC = midbropasad.c broevent.c fifoqueue.c
+OBJ = $(patsubst %.c, build/%.o, $(SRC))
 
-all: midbropasad tests
+all: bin/midbropasad bin/tests
 
-midbropasad: midbropasad.o broevent.o fifoqueue.o
-	$(CC) midbropasad.o broevent.o fifoqueue.o -o midbropasad $(LDFLAGS)
+bin/midbropasad: $(OBJ)
+	$(CC) $^ -o bin/midbropasad $(LDFLAGS)
 
-tests: tests.o fifoqueue.o
-	$(CC) tests.o fifoqueue.o -o tests
+build/%.o: src/%.c
+	$(CC) $(CFLAGS) $(INC) $< -o $@
 
-midbropasad.o: midbropasad.c
-	$(CC) $(CFLAGS) midbropasad.c
+bin/tests: build/fifoqueue.o build/tests.o
+	$(CC) $^ -o bin/tests $(LDFLAGS)
 
-broevent.o: broevent.c
-	$(CC) $(CFLAGS) broevent.c
-
-fifoqueue.o: fifoqueue.c
-	$(CC) -c -Wall fifoqueue.c
-
-tests.o: tests.c
-	$(CC) -c -Wall tests.c
+build/tests.o: test/tests.c
+	$(CC) $(CFLAGS) $(INC) $< -o $@
 
 clean:
-	rm *.o midbropasad tests
+	rm build/* bin/*

@@ -1,5 +1,8 @@
-#include "includes/fifoqueue.h"
 #include <pthread.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include "types.h"
+#include "fifoqueue.h"
 
 pthread_mutex_t lock;
 pthread_mutex_t bufferEmptyBlock;

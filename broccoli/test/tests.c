@@ -1,5 +1,7 @@
-#include "includes/fifoqueue.h"
+#include "fifoqueue.h"
 #include <assert.h>
+#include <stdio.h>
+#include <stdlib.h>
 
     void
 create_sensor_object_test() {   
