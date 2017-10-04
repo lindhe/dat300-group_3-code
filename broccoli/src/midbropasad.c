@@ -6,6 +6,24 @@
 #include <broccoli.h>
 #endif
 
+Fifo_q * q;
+
+    int *
+request_sensor_data(int number)
+{
+    int i;
+    int * arrayOfValues;
+    Sensor_t * sensor;
+    arrayOfValues = (int *) malloc(number*sizeof(int));
+    for(i=0; i<number; ++i){
+        sensor = pop_from_queue(q);
+        arrayOfValues[i] = sensor->value;
+        free(sensor);
+    }
+    printf("Release %d sensor data values\n", number);
+    return arrayOfValues;
+}
+
     void
 start_data_capture(Fifo_q * q)
 {
@@ -23,10 +41,10 @@ main(int argc, char **argv)
 {
     Fifo_q * q = init_queue(50);
     start_data_capture(q);
+    sleep(10);
     while(true){
-        printf("Main thread\n");
-        sleep(10);
         print_queue(q);
+        free(request_sensor_data(5));
     }
     free(q);
     return 0;
