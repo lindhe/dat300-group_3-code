@@ -1,5 +1,6 @@
 #ifndef TYPES_H
 #define TYPES_H
+#include <semaphore.h>
 
 #define true 1
 #define false 0
@@ -24,6 +25,8 @@ struct fifo_q{
     Queue_t * tail;
     int maxSize;
     int currentSize;
+    sem_t bufferEmptyBlock;
+    sem_t lock;
 };
 
 #endif
