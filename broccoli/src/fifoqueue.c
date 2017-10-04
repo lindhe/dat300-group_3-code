@@ -1,11 +1,9 @@
 #include <pthread.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <semaphore.h>
 #include "types.h"
 #include "fifoqueue.h"
-
-pthread_mutex_t lock;
-pthread_mutex_t bufferEmptyBlock;
 
     Fifo_q * 
 init_queue(int size)
@@ -15,15 +13,8 @@ init_queue(int size)
     q->tail = NULL;
     q->maxSize = size;
     q->currentSize = 0;
-    if (pthread_mutex_init(&lock, NULL) != 0)
-    {
-        printf("WARNING: Couldn't initialize lock\n");
-    }
-    if (pthread_mutex_init(&bufferEmptyBlock, NULL) != 0)
-    {
-        printf("WARNING: Couldn't initialize blocking lock\n");
-    }
-    pthread_mutex_lock(&bufferEmptyBlock);
+    sem_init(&q->bufferEmptyBlock, 0, 0);
+    sem_init(&q->lock, 0, 1);
     return q;
 }
 
@@ -49,7 +40,6 @@ is_empty(Fifo_q * q)
 add_to_queue(Fifo_q * q, Sensor_t * sensor)
 {
 
-    pthread_mutex_lock(&lock);
     /* TODO delete first one if full */
     if(q == NULL){
         return -1;    
@@ -57,35 +47,44 @@ add_to_queue(Fifo_q * q, Sensor_t * sensor)
     else if(is_full(q)){
         return -1;
     }
+    sem_wait(&q->lock);
     Queue_t * new_elem = (Queue_t *) malloc(sizeof(Queue_t));
     new_elem->next = NULL;
     new_elem->sensor = sensor;
     if(is_empty(q)){
         q->head = new_elem;
-        pthread_mutex_unlock(&bufferEmptyBlock);
+        sem_post(&q->bufferEmptyBlock);
     }else
         q->tail->next = new_elem;
     q->tail = new_elem;
     q->currentSize++;
-    pthread_mutex_unlock(&lock);
+    sem_post(&q->lock);
     return 1;
 }
 
     Sensor_t *
 pop_from_queue(Fifo_q * q)
 {
-
+    int semStat;
     if(is_empty(q)){
-        perror("The queue is empty");
-        pthread_mutex_lock(&bufferEmptyBlock);
+        printf("Waiting for sensor data\n");
+        sem_wait(&q->bufferEmptyBlock);
     }
-    pthread_mutex_lock(&lock);
+    sem_wait(&q->lock);
     Queue_t * head = q->head;
-    q->head = head->next;
     Sensor_t * sensor = head->sensor;
+    if(q->currentSize == 1){
+        q->head = NULL;
+        q->tail = NULL;
+        sem_getvalue(&q->bufferEmptyBlock, &semStat);
+        if(semStat == 1)
+            sem_wait(&q->bufferEmptyBlock);
+    }else{
+        q->head = head->next;
+    }
     free(head);
     q->currentSize--;
-    pthread_mutex_unlock(&lock);
+    sem_post(&q->lock);
     return sensor;
 } 
 
@@ -99,10 +98,12 @@ create_sensor_object(int value, int uid){
     void
 print_queue(Fifo_q * q)
 {
-    pthread_mutex_lock(&lock);
+    sem_wait(&q->lock);
     Queue_t * current = q->head;
+    printf("\nContent of the queue with size=%d\n",q->currentSize);
     if(current == NULL){
-        printf("The queue is empty!");
+        printf("The queue is empty!\n");
+        sem_post(&q->lock);
         return;
     }
     while(current != NULL){
@@ -110,5 +111,5 @@ print_queue(Fifo_q * q)
                 current->sensor->value, current->sensor->uid);
         current = current->next;
     }
-    pthread_mutex_unlock(&lock);
+    sem_post(&q->lock);
 }
