@@ -9,13 +9,29 @@ char *port_default = "47760";
 Fifo_q * q;
 
     static void
-bro_response(BroConn *conn, void *data, uint64* registers, uint64* uid)
+pasad_register_received(BroConn *conn, void *data, BroRecord *record)
 {
-    add_to_queue(q,create_sensor_object(*registers,*uid));
-    //printf("Received value %"PRIu64" from uid=%"PRIu64"\n",*registers,*uid);
+    int type = BRO_TYPE_COUNT;
+    uint64 *address = NULL;
+    uint64 *value = NULL;
 
-    conn = NULL;
-    data = NULL;
+    // TODO: handle regtype
+    address = bro_record_get_named_val(record, "address", &type);
+    if (!address) {
+        // TODO: handle error
+        return;
+    }
+    value = bro_record_get_named_val(record, "register", &type);
+    if (!value) {
+        // TODO: handle error
+        return;
+    }
+
+    printf("Received value %"PRIu64" from uid=%"PRIu64"\n",*value,*address);
+
+    add_to_queue(q, create_sensor_object(*value, *address));
+
+    printf("Added to queue.\n");
 }
 
     void *
@@ -36,7 +52,8 @@ bro_event_listener(void * args)
     bro_debug_calltrace = 0;
     bro_debug_messages  = 0;
 
-    bro_event_registry_add(bc, "response",(BroEventFunc) bro_response, NULL);
+    bro_event_registry_add(bc, "pasad_register_received",
+            (BroEventFunc) pasad_register_received, NULL);
 
     if (! bro_conn_connect(bc))
     {
