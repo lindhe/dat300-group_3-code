@@ -48,13 +48,13 @@ is_empty(Fifo_q * q)
     int
 add_to_queue(Fifo_q * q, Sensor_t * sensor)
 {
+    if (q == NULL)
+        return -1;
 
     pthread_mutex_lock(&lock);
     /* TODO delete first one if full */
-    if(q == NULL){
-        return -1;    
-    } 
-    else if(is_full(q)){
+    if(is_full(q)){
+        pthread_mutex_unlock(&lock);
         return -1;
     }
     Queue_t * new_elem = (Queue_t *) malloc(sizeof(Queue_t));
