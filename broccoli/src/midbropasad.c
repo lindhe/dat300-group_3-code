@@ -8,20 +8,28 @@
 
 Fifo_q * q;
 
-    int *
-request_sensor_data(int number)
+    void
+request_n_values(int number, int arrayOfValues[])
 {
     int i;
-    int * arrayOfValues;
     Sensor_t * sensor;
-    arrayOfValues = (int *) malloc(number*sizeof(int));
     for(i=0; i<number; ++i){
         sensor = pop_from_queue(q);
         arrayOfValues[i] = sensor->value;
         free(sensor);
     }
     printf("Release %d sensor data values\n", number);
-    return arrayOfValues;
+}
+    int
+request_value()
+{
+    int value;
+    Sensor_t * sensor;
+    sensor = pop_from_queue(q);
+    value = sensor->value;
+    free(sensor);
+    printf("Release 1 sensor data value\n");
+    return value;
 }
 
     void
@@ -44,7 +52,7 @@ main(int argc, char **argv)
     sleep(10);
     while(true){
         print_queue(q);
-        free(request_sensor_data(5));
+        request_value();
     }
     free(q);
     return 0;
