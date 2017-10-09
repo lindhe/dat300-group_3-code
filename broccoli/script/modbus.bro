@@ -29,6 +29,10 @@ export {
         address:    count   &log;
         register:   count   &log;
     };
+
+    const enable_filtering : bool = F;
+    const filter_ip_addr : addr = 192.168.211.146;
+    const filter_mem_addr : count = 64;
 }
 
 redef record connection += {
@@ -52,20 +56,45 @@ event pasad_unmatched_response(tid: count) {
 
 ## CUSTOM FUNCTIONS
 
+function pasad_check_filter(ip: addr, start_address: count, quantity: count) : bool {
+    if (!enable_filtering)
+        return T;
+    if (ip != filter_ip_addr)
+        return F;
+
+    if (start_address == 0 && quantity == 0)
+        return T;
+    if (start_address > filter_mem_addr)
+        return F;
+    return filter_mem_addr < start_address + quantity;
+}
+
+function pasad_generate_event(transaction: Transaction, c: connection,
+        headers: ModbusHeaders, registers: ModbusRegisters, regtype: string,
+        i: count) {
+    local data = RegisterData(
+            $ip=c$id$resp_h,
+            $uid=headers$uid,
+            $regtype=regtype,
+            $address=transaction$start_address + i,
+            $register=registers[i]
+    );
+    event pasad_register_received(data);
+}
+
 function pasad_generate_events(transaction: Transaction, c: connection,
         headers: ModbusHeaders, registers: ModbusRegisters, regtype: string) {
     # TODO: check registers size
-    local i = 0;
-    while (i < transaction$quantity) {
-        local data = RegisterData(
-                $ip=c$id$orig_h,
-                $uid=headers$uid,
-                $regtype=regtype,
-                $address=transaction$start_address + i,
-                $register=registers[i]
-        );
-        event pasad_register_received(data);
-        ++i;
+    if (enable_filtering) {
+        print fmt("%d   %d    %d", filter_mem_addr, transaction$start_address, transaction$quantity);
+        pasad_generate_event(transaction, c, headers, registers, regtype,
+                filter_mem_addr - transaction$start_address);
+    } else {
+        local i = 0;
+        while (i < transaction$quantity) {
+            pasad_generate_event(transaction, c, headers, registers, regtype, i);
+            ++i;
+        }
     }
 }
 
@@ -77,6 +106,11 @@ event bro_init() &priority=5 {
 
 event modbus_read_holding_registers_request(c: connection,
         headers: ModbusHeaders, start_address: count, quantity: count) {
+    if (!pasad_check_filter(c$id$resp_h, start_address, quantity)) {
+        print fmt("Filtered %s/%d/%d", c$id$resp_h, start_address, quantity);
+        return;
+    }
+
     local tid = headers$tid;
     local transaction = Transaction(
             $start_address=start_address,
@@ -87,6 +121,11 @@ event modbus_read_holding_registers_request(c: connection,
 
 event modbus_read_holding_registers_response(c: connection,
         headers: ModbusHeaders, registers: ModbusRegisters) {
+    if (!pasad_check_filter(c$id$resp_h, 0, 0)) {
+        print fmt("Filtered %s", c$id$resp_h);
+        return;
+    }
+
     local tid = headers$tid;
     if (tid !in c$pasad$transactions) {
         event pasad_unmatched_response(tid);
