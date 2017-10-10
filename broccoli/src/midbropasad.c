@@ -33,8 +33,10 @@ request_value()
 }
 
     void
-start_data_capture(Fifo_q * q)
+start_data_capture()
 {
+
+    q = init_queue(50);
     int res;
     pthread_t event_listener;
     res = pthread_create(&event_listener, NULL, bro_event_listener, q);
@@ -42,18 +44,4 @@ start_data_capture(Fifo_q * q)
         perror("Unable to create thread");
         exit(-1);
     }
-}
-
-    int
-main(int argc, char **argv)
-{
-    Fifo_q * q = init_queue(50);
-    start_data_capture(q);
-    sleep(10);
-    while(true){
-        print_queue(q);
-        request_value();
-    }
-    free(q);
-    return 0;
 }
