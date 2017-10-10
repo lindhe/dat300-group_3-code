@@ -10,7 +10,7 @@ then
 	exit
 fi
 
-CAPTURE_FILE=$1
+CAPTURE_FILE=$(realpath "$1")
 FILTER_MACHINE=$2
 FILTER_REGISTER=$3
 
