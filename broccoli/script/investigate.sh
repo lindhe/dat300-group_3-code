@@ -10,6 +10,12 @@ then
 	exit
 fi
 
+if [[ ! -f "$1" || ! -r "$1" ]]
+then
+	echo "Dump file $1 does not exist or cannot be read."
+	exit
+fi
+
 CAPTURE_FILE=$(realpath "$1")
 FILTER_MACHINE=$2
 FILTER_REGISTER=$3
