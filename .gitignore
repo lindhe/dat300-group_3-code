@@ -1,3 +1,5 @@
 broccoli/bin/
 broccoli/build/
 broccoli/script/.state/
+*.o
+*.log
