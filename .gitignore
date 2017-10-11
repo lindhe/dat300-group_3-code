@@ -1,5 +1,6 @@
 broccoli/bin/
 broccoli/build/
 broccoli/script/.state/
+broccoli/lib/
 *.o
 *.log
