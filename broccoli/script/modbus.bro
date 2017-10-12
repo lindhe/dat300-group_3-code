@@ -7,6 +7,9 @@ redef Communication::listen_port = 47760/tcp;
 
 redef Communication::listen_ssl = F;
 
+## Global variables
+global verbose=T;
+
 ## DATA STRUCTURES
 
 export {
@@ -48,11 +51,13 @@ redef Communication::nodes += {
 
 event pasad_register_received(data: RegisterData) {
     Log::write(Pasad::LOG, data);
-    print fmt("Received address=%d, register=%d", data$address, data$register);
+    if(verbose)
+        print fmt("Received address=%d, register=%d", data$address, data$register);
 }
 
 event pasad_unmatched_response(tid: count) {
-    print fmt("Unmatched response: tid=%d", tid);
+    if(verbose)
+        print fmt("Unmatched response: tid=%d", tid);
 }
 
 ## CUSTOM FUNCTIONS
@@ -87,7 +92,8 @@ function pasad_generate_events(transaction: Transaction, c: connection,
         headers: ModbusHeaders, registers: ModbusRegisters, regtype: string) {
     # TODO: check registers size
     if (enable_filtering) {
-        print fmt("%d   %d    %d", filter_mem_addr, transaction$start_address, transaction$quantity);
+        if(verbose)
+            print fmt("%d   %d    %d", filter_mem_addr, transaction$start_address, transaction$quantity);
         pasad_generate_event(transaction, c, headers, registers, regtype,
                 filter_mem_addr - transaction$start_address);
     } else {
@@ -108,7 +114,8 @@ event bro_init() &priority=5 {
 event modbus_read_holding_registers_request(c: connection,
         headers: ModbusHeaders, start_address: count, quantity: count) {
     if (!pasad_check_filter(c$id$resp_h, start_address, quantity)) {
-        print fmt("Filtered %s/%d/%d", c$id$resp_h, start_address, quantity);
+        if(verbose)
+            print fmt("Filtered %s/%d/%d", c$id$resp_h, start_address, quantity);
         return;
     }
 
@@ -123,7 +130,8 @@ event modbus_read_holding_registers_request(c: connection,
 event modbus_read_holding_registers_response(c: connection,
         headers: ModbusHeaders, registers: ModbusRegisters) {
     if (!pasad_check_filter(c$id$resp_h, 0, 0)) {
-        print fmt("Filtered %s", c$id$resp_h);
+        if(verbose)
+            print fmt("Filtered %s", c$id$resp_h);
         return;
     }
 
