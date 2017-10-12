@@ -67,7 +67,9 @@ pop_from_queue(Fifo_q * q)
 {
     int semStat;
     if(is_empty(q)){
+        #ifdef DEBUG
         printf("Waiting for sensor data\n");
+        #endif
         sem_wait(&q->bufferEmptyBlock);
     }
     sem_wait(&q->lock);

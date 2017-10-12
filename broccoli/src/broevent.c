@@ -26,12 +26,15 @@ pasad_register_received(BroConn *conn, void *data, BroRecord *record)
         // TODO: handle error
         return;
     }
-
+    #ifdef DEBUG
     printf("Received value %"PRIu64" from uid=%"PRIu64"\n",*value,*address);
+    #endif
 
     add_to_queue(q, create_sensor_object(*value, *address));
 
+    #ifdef DEBUG
     printf("Added to queue.\n");
+    #endif
 }
 
     void *
@@ -71,7 +74,7 @@ bro_event_listener(void * args)
         FD_ZERO(&rfds);
         FD_SET(fd,&rfds);
         if(select(fd+1,&rfds,NULL,NULL,NULL) == -1){
-            perror("select()");
+            printf("select(): Bad file descriptor");
             break;
         }
 
