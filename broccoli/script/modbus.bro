@@ -1,4 +1,5 @@
 @load frameworks/communication/listen
+@load base/protocols/modbus
 
 module Pasad;
 
