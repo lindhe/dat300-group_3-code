@@ -3,6 +3,8 @@
 
 module Pasad;
 
+redef Pcap::bufsize = 256;
+
 redef Communication::listen_port = 47760/tcp;
 
 redef Communication::listen_ssl = F;
