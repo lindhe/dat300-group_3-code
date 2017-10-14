@@ -8,7 +8,8 @@
 # Make sure that the command is executed by root.
 
 function execute_command {
-	bash -c "$@"
+	# bash -c "$@"
+	ssh -i ~/.ssh/pasadpi_rsa pi@pasadpi2 "sudo bash -c '$@'"
 }
 
 function measure_packets {
@@ -17,7 +18,8 @@ function measure_packets {
 
 	BRO_PID=$(execute_command "bro -i \"${BRO_INTERFACE}\" -C -b Log::default_writer=Log::WRITER_NONE \"${BRO_SCRIPT}\" > ${BRO_DIR}/bro-out.txt 2> ${BRO_DIR}/bro-err.txt & echo \$!")
 
-	tcpreplay -i "${BRO_INTERFACE}" -M "${TCPREPLAY_SPEED}" -L "${TCPREPLAY_COUNT}" "${TCPREPLAY_DUMP}" > /dev/null 2> /dev/null
+
+	tcpreplay -i ${TCPREPLAY_INTERFACE} -M ${TCPREPLAY_SPEED} -L ${TCPREPLAY_COUNT} ${TCPREPLAY_DUMP} > /dev/null 2> /dev/null
 
 	PCPU="100.0"
 	while [[ $(echo "${PCPU}>50" | bc) -eq 1 ]]
@@ -32,7 +34,7 @@ function measure_packets {
 	execute_command "tail -1 ${BRO_DIR}/bro-err.txt" | sed 's/.* \([0-9]\+\) packets received.*/\1/'
 }
 
-if [[ $# -ne 3 ]]
+if [[ $# -ne 4 ]]
 then
 	echo "Executes Bro and tcpreplay and measures the number of packages"
 	echo "received and handled by Bro."
@@ -41,14 +43,16 @@ then
 	echo "    $0 SCRIPT IFACE DUMP"
 	echo "Arguments:"
 	echo "    SCRIPT  the Bro script to execute"
-	echo "    IFACE   the interface for Bro to listen on"
+	echo "    BIFACE  the interface for Bro to listen on"
 	echo "    DUMP    the network dump to replay"
+	echo "    TIFACE  the interface for tcpreplay to replay to"
 	exit 1
 fi
 
 BRO_SCRIPT=$1
 BRO_INTERFACE=$2
 TCPREPLAY_DUMP=$3
+TCPREPLAY_INTERFACE=$4
 
 SPEEDS=(100 50 25)
 COUNTS=(1000000 2000000 4000000)
