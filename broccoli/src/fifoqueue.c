@@ -13,6 +13,7 @@ init_queue(int size)
     q->tail = NULL;
     q->maxSize = size;
     q->currentSize = 0;
+    /*Queue empty from the beginning (block)*/
     sem_init(&q->bufferEmptyBlock, 0, 0);
     sem_init(&q->lock, 0, 1);
     return q;
@@ -40,12 +41,16 @@ is_empty(Fifo_q * q)
 add_to_queue(Fifo_q * q, Sensor_t * sensor)
 {
 
-    /* TODO delete first one if full */
     if(q == NULL){
+        printf("Error: Queue not initialized\n");
         return -1;    
     } 
     else if(is_full(q)){
-        return -1;
+        /* Drop Least Recently or Drop Most Recently */
+        #ifdef DLR
+            pop_from_queue(q);
+        #endif
+        return 0;
     }
     sem_wait(&q->lock);
     Queue_t * new_elem = (Queue_t *) malloc(sizeof(Queue_t));
@@ -75,11 +80,13 @@ pop_from_queue(Fifo_q * q)
     sem_wait(&q->lock);
     Queue_t * head = q->head;
     Sensor_t * sensor = head->sensor;
+    /* If dequeue the last element */
     if(q->currentSize == 1){
         q->head = NULL;
         q->tail = NULL;
+        /* Read current semaphore value */
         sem_getvalue(&q->bufferEmptyBlock, &semStat);
-        if(semStat == 1)
+        if(semStat == 1) /* Mark buffer as empty if last elem */
             sem_wait(&q->bufferEmptyBlock);
     }else{
         q->head = head->next;
@@ -91,7 +98,8 @@ pop_from_queue(Fifo_q * q)
 } 
 
     Sensor_t *
-create_sensor_object(int value, int uid){
+create_sensor_object(int value, int uid)
+{
     Sensor_t * sensor = (Sensor_t *) malloc(sizeof(Sensor_t));
     sensor->value = value;
     sensor->uid = uid;
