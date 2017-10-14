@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include "fifoqueue.h"
 #include "broevent.h"
+#include "midbro.h"
 #ifdef BROCCOLI
 #include <broccoli.h>
 #endif
