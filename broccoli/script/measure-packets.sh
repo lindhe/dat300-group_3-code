@@ -18,11 +18,10 @@ function measure_packets {
 
 	BRO_PID=$(execute_command "bro -i \"${BRO_INTERFACE}\" -C -b Log::default_writer=Log::WRITER_NONE \"${BRO_SCRIPT}\" > ${BRO_DIR}/bro-out.txt 2> ${BRO_DIR}/bro-err.txt & echo \$!")
 
-
 	tcpreplay -i ${TCPREPLAY_INTERFACE} -M ${TCPREPLAY_SPEED} -L ${TCPREPLAY_COUNT} ${TCPREPLAY_DUMP} > /dev/null 2> /dev/null
 
 	PCPU="100.0"
-	while [[ $(echo "${PCPU}>50" | bc) -eq 1 ]]
+	while [[ $(echo "${PCPU}>${IDLE}" | bc) -eq 1 ]]
 	do
 		sleep 1
 		PCPU=$(execute_command "ps -q ${BRO_PID} -o pcpu --no-headers")
@@ -66,6 +65,14 @@ fi
 TCPREPLAY_DUMP=$(realpath "${TCPREPLAY_DUMP}")
 
 BRO_DIR=$(execute_command "mktemp --directory --tmpdir bro.XXX")
+
+# First run a test to measure what CPU base load to wait for
+BRO_PID=$(execute_command "bro -i \"${BRO_INTERFACE}\" -C -b Log::default_writer=Log::WRITER_NONE \"${BRO_SCRIPT}\" > ${BRO_DIR}/bro-out.txt 2> ${BRO_DIR}/bro-err.txt & echo \$!")
+sleep 10
+IDLECPU=$(execute_command "ps -q ${BRO_PID} -o pcpu --no-headers")
+IDLE=$(echo "${IDLECPU}+5.0" | bc);
+echo "Idle baseload is: $IDLE";
+execute_command "killall bro"
 
 echo -ne "sent\t"
 for SPEED in ${SPEEDS[@]}
