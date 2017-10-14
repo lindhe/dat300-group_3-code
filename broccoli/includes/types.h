@@ -25,6 +25,10 @@ struct fifo_q{
     Queue_t * tail;
     int maxSize;
     int currentSize;
+    int droppedValues;
+    int largestBufferSize;
+    int valuesReceived;
+    int valuesReleased;
     sem_t bufferEmptyBlock;
     sem_t lock;
 };

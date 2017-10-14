@@ -13,6 +13,10 @@ init_queue(int size)
     q->tail = NULL;
     q->maxSize = size;
     q->currentSize = 0;
+    q->droppedValues = 0;
+    q->largestBufferSize = 0;
+    q->valuesReceived = 0;
+    q->valuesReleased = 0;
     /*Queue empty from the beginning (block)*/
     sem_init(&q->bufferEmptyBlock, 0, 0);
     sem_init(&q->lock, 0, 1);
@@ -50,6 +54,7 @@ add_to_queue(Fifo_q * q, Sensor_t * sensor)
         #ifdef DLR
             pop_from_queue(q);
         #endif
+        q->droppedValues++;
         return 0;
     }
     sem_wait(&q->lock);
@@ -63,6 +68,9 @@ add_to_queue(Fifo_q * q, Sensor_t * sensor)
         q->tail->next = new_elem;
     q->tail = new_elem;
     q->currentSize++;
+    q->valuesReceived++;
+    if(q->currentSize > q->largestBufferSize)
+        q->largestBufferSize = q->currentSize;
     sem_post(&q->lock);
     return 1;
 }
@@ -93,6 +101,9 @@ pop_from_queue(Fifo_q * q)
     }
     free(head);
     q->currentSize--;
+    #ifndef DLR
+    q->valuesReleased++;
+    #endif
     sem_post(&q->lock);
     return sensor;
 } 
