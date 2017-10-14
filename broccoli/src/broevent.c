@@ -9,7 +9,7 @@ char *port_default = "47760";
 Fifo_q * q;
 
     static void
-pasad_register_received(BroConn *conn, void *data, BroRecord *record)
+modbus_register_received(BroConn *conn, void *data, BroRecord *record)
 {
     int type = BRO_TYPE_COUNT;
     uint64 *address = NULL;
@@ -56,7 +56,7 @@ bro_event_listener(void * args)
     bro_debug_messages  = 0;
 
     bro_event_registry_add(bc, "pasad_register_received",
-            (BroEventFunc) pasad_register_received, NULL);
+            (BroEventFunc) modbus_register_received, NULL);
 
     if (! bro_conn_connect(bc))
     {
