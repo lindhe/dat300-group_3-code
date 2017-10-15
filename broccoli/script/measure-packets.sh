@@ -74,12 +74,14 @@ IDLE=$(echo "${IDLECPU}+5.0" | bc);
 echo "Idle baseload is: $IDLE";
 execute_command "killall bro"
 
+echo "Starting time: $(date +'%F_%T')"
+
 echo -ne "sent\t"
 for SPEED in ${SPEEDS[@]}
 do
 	echo -ne "${SPEED}\t"
 done
-echo
+echo "time"
 
 for COUNT in ${COUNTS[@]}
 do
@@ -89,7 +91,7 @@ do
 		COUNT_RECEIVED=$(measure_packets ${SPEED} ${COUNT})
 		echo -ne "${COUNT_RECEIVED}\t"
 	done
-	echo
+    echo "$(date +'%F_%T')"
 done
 
 execute_command "rm -rf \"${BRO_DIR}\""
