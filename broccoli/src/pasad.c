@@ -40,9 +40,6 @@ int main(int argc, char **argv)
 	int L = atoi(argv[2]);
 	int r = atoi(argv[3]);
 
-	FILE *file_sensor = fopen("sensor.dat", "w");
-	FILE *file_distance = fopen("distance.dat", "w");
-
 	/* Arrays and variables */
 	int sL=86336;
 	double s[sL];
@@ -107,6 +104,9 @@ int main(int argc, char **argv)
 	product_Xt_X = sum;
 	sum = 0;
 
+	FILE *file_sensor = fopen("sensor.dat", "w");
+	FILE *file_distance = fopen("distance.dat", "w");
+
 	begin = clock();
 	while(1)
 	{
@@ -141,6 +141,9 @@ int main(int argc, char **argv)
 
 		printf("%lf\n",dist);
 		fprintf(file_distance, "%lf\n", dist);
+
+		fflush(file_sensor);
+		fflush(file_distance);
 	}
 
 	fclose(file_sensor);
