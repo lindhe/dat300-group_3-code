@@ -7,7 +7,7 @@ DEBUG =
 SRC = midbro.c broevent.c fifoqueue.c
 OBJ = $(patsubst %.c, build/%.o, $(SRC))
 
-all: dirs lib/midbro
+all: dirs lib/midbro bin/pasad
 
 dirs:
 	mkdir -p build bin lib
@@ -17,6 +17,9 @@ lib/midbro: $(OBJ)
 
 midbro_test:
 	$(CC) test/midbro_test.c -I./includes -o bin/midbro_test -L./lib -lmidbro
+
+bin/pasad: build/pasad.o
+	$(CC) $^ $(INC) -o $@ -Llib -lmidbro
 
 build/%.o: src/%.c
 	$(CC) $(LIBCFLAGS) $(DEBUG) $(INC) $< -o $@
