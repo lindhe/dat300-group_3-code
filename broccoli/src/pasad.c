@@ -13,7 +13,7 @@
 
  Modified by Robin Krahl <guskraro@student.gu.se>, Group 3:
  - Write sensor readings and distance to text files
- - Take the arguments N, L, r from argc (TODO)
+ - Take the arguments N, L, r from argc
  - Formatting
  
  */
@@ -23,11 +23,22 @@
 #include <time.h>
 #include "midbro.h"
 
-int main()
+int main(int argc, char **argv)
 {
 	clock_t begin;
-	int N=1000,L=500,r=18,l=0;
+	int l=0;
 	double t=30;
+
+	if (argc != 4) {
+		fprintf(stderr, "Usage: %s N L r\n", argv[0]);
+		fprintf(stderr, "    Example values: N = 1000, L = 500, r = 18\n");
+		fprintf(stderr, "Wrong argument count. Aborting.\n");
+		return 1;
+	}
+
+	int N = atoi(argv[1]);
+	int L = atoi(argv[2]);
+	int r = atoi(argv[3]);
 
 	FILE *file_sensor = fopen("sensor.dat", "w");
 	FILE *file_distance = fopen("distance.dat", "w");
