@@ -49,6 +49,10 @@ int main()
 	char ch='a';
 	int flag=0;
 	file=fopen("U.txt", "r");
+	if (!file) {
+		fprintf(stderr, "Could not open U.txt. Aborting.\n");
+		return 1;
+	}
 	printf("  >Reading U[%dx%d] matrix from .txt file...",L,r);
 	/* Read all values to an array */
 	for(i=0;i<L;i++)
