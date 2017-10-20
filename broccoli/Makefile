@@ -19,7 +19,7 @@ midbro_test:
 	$(CC) test/midbro_test.c -I./includes -o bin/midbro_test -L./lib -lmidbro
 
 bin/pasad: build/pasad.o
-	$(CC) $^ $(INC) -o $@ -Llib -lmidbro
+	$(CC) $^ $(INC) -o $@ -Llib -lmidbro -Wl,-rpath=$(shell pwd)/lib
 
 build/%.o: src/%.c
 	$(CC) $(LIBCFLAGS) $(DEBUG) $(INC) $< -o $@
