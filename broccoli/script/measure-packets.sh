@@ -90,7 +90,7 @@ BRO_DIR=$(execute_command "mktemp --directory --tmpdir bro.XXX")
 BRO_PID=$(execute_command "bro -i \"${BRO_INTERFACE}\" -C -b Log::default_writer=Log::WRITER_NONE \"${BRO_SCRIPT}\" > ${BRO_DIR}/bro-out.txt 2> ${BRO_DIR}/bro-err.txt & echo \$!")
 sleep 10
 IDLECPU=$(execute_command "ps -q ${BRO_PID} -o pcpu --no-headers")
-IDLE=$(echo "${IDLECPU}+5.0" | bc);
+IDLE=$(echo "${IDLECPU}+10" | bc);
 echo "Idle baseload is: $IDLE";
 execute_command "killall bro"
 
