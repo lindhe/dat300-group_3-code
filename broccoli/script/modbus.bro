@@ -10,7 +10,7 @@ redef Communication::listen_port = 47760/tcp;
 redef Communication::listen_ssl = F;
 
 ## Global variables
-global verbose=T;
+global verbose=F;
 
 ## DATA STRUCTURES
 
@@ -36,8 +36,8 @@ export {
         register:   count   &log;
     };
 
-    const enable_filtering : bool = F;
-    const filter_ip_addr : addr = 192.168.211.146;
+    const enable_filtering : bool = T;
+    const filter_ip_addr : addr = 192.168.215.66;
     const filter_mem_addr : count = 64;
 }
 
