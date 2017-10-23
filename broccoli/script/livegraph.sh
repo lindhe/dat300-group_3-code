@@ -17,7 +17,7 @@ then
 fi
 
 function plot() {
-	scp "${SCP_EXPR}/sensor.dat" "${SCP_EXPR}/distance.dat" .
+	scp -i /home/andreas/.ssh/pasadpi_rsa -P 8022 "${SCP_EXPR}/sensor.dat" "${SCP_EXPR}/distance.dat" .
 	echo "set terminal png; plot 'sensor.dat' using 0:1 with line, 'distance.dat' using 0:1 axis x1y2 with line"| gnuplot > live-tmp.png
 	mv live-tmp.png live.png
 }
