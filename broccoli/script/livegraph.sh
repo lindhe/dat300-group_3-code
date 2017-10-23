@@ -18,7 +18,9 @@ fi
 
 function plot() {
 	scp "${SCP_EXPR}/sensor.dat" "${SCP_EXPR}/distance.dat" .
-	echo "set terminal png; plot 'sensor.dat' using 0:1 with line, 'distance.dat' using 0:1 axis x1y2 with line"| gnuplot > live-tmp.png
+	tail -1000 sensor.dat > sensor-1000.dat
+	tail -1000 distance.dat > distance-1000.dat
+	echo "set terminal png; set yrange [17000:17300]; set y2range [0:300]; set ytics nomirror; set y2tics nomirror; set title 'Midbro/PASAD demo'; plot 'sensor-1000.dat' using 0:1 with line title 'sensor value', 'distance-1000.dat' using 0:1 axis x1y2 with line title 'distance'" | gnuplot > live-tmp.png
 	mv live-tmp.png live.png
 }
 
