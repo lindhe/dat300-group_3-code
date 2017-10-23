@@ -65,7 +65,6 @@ add_to_queue(Fifo_q * q, Sensor_t * sensor)
     new_elem->sensor = sensor;
     if(is_empty(q)){
         q->head = new_elem;
-        sem_post(&q->bufferEmptyBlock);
     }else
         q->tail->next = new_elem;
     q->tail = new_elem;
@@ -74,6 +73,7 @@ add_to_queue(Fifo_q * q, Sensor_t * sensor)
     if(q->currentSize > q->largestBufferSize)
         q->largestBufferSize = q->currentSize;
     sem_post(&q->lock);
+    sem_post(&q->bufferEmptyBlock);
     return 1;
 }
 
@@ -81,12 +81,7 @@ add_to_queue(Fifo_q * q, Sensor_t * sensor)
 pop_from_queue(Fifo_q * q)
 {
     int semStat;
-    if(is_empty(q)){
-        #ifdef DEBUG
-        printf("Waiting for sensor data\n");
-        #endif
-        sem_wait(&q->bufferEmptyBlock);
-    }
+    sem_wait(&q->bufferEmptyBlock);
     sem_wait(&q->lock);
     Queue_t * head = q->head;
     Sensor_t * sensor = head->sensor;
@@ -94,10 +89,6 @@ pop_from_queue(Fifo_q * q)
     if(q->currentSize == 1){
         q->head = NULL;
         q->tail = NULL;
-        /* Read current semaphore value */
-        sem_getvalue(&q->bufferEmptyBlock, &semStat);
-        if(semStat == 1) /* Mark buffer as empty if last elem */
-            sem_wait(&q->bufferEmptyBlock);
     }else{
         q->head = head->next;
     }
