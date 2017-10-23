@@ -18,6 +18,16 @@ function measure_packets {
 
 	BRO_PID=$(execute_command "bro -i \"${BRO_INTERFACE}\" -C -b Log::default_writer=Log::WRITER_NONE \"${BRO_SCRIPT}\" > ${BRO_DIR}/bro-out.txt 2> ${BRO_DIR}/bro-err.txt & echo \$!")
 
+	PASAD_PID=""
+	if [[ -n "${PASAD}" ]]
+	then
+		# We also want to execute a Pasad instance
+		# Wait for Bro to be ready
+		execute_command "tail -f ${BRO_DIR}/bro-err.txt | while read LOGLINE ; do [[ \"\${LOGLINE}\" == *\"listening on \"* ]] && pkill -P \$\$ tail ; done"
+		# Start Pasad
+		PASAD_PID=$(execute_command "${PASAD} > ${BRO_DIR}/pasad-out.txt 2> ${BRO_DIR}/pasad-err.txt & echo \$!")
+	fi
+
 	tcpreplay -i ${TCPREPLAY_INTERFACE} -M ${TCPREPLAY_SPEED} -L ${TCPREPLAY_COUNT} ${TCPREPLAY_DUMP} > /dev/null 2> /dev/null
 
 	PCPU="100.0"
@@ -27,24 +37,29 @@ function measure_packets {
 		PCPU=$(execute_command "ps -q ${BRO_PID} -o pcpu --no-headers")
 	done
 
+	if [[ -n "${PASAD_PID}" ]]
+	then
+		execute_command "kill -SIGINT \"${PASAD_PID}\""
+	fi
 	execute_command "kill -SIGINT \"${BRO_PID}\""
 	execute_command "while kill -0 ${BRO_PID} 2>/dev/null ; do sleep 0.1 ; done"
 
 	execute_command "tail -1 ${BRO_DIR}/bro-err.txt" | sed 's/.* \([0-9]\+\) packets received.*/\1/'
 }
 
-if [[ $# -ne 4 ]]
+if [[ $# -lt 4  || $# -gt 5 ]]
 then
 	echo "Executes Bro and tcpreplay and measures the number of packages"
 	echo "received and handled by Bro."
 	echo
 	echo "Usage:"
-	echo "    $0 SCRIPT IFACE DUMP"
+	echo "    $0 SCRIPT BIFACE DUMP TIFACE [PASAD]"
 	echo "Arguments:"
 	echo "    SCRIPT  the Bro script to execute"
 	echo "    BIFACE  the interface for Bro to listen on"
 	echo "    DUMP    the network dump to replay"
 	echo "    TIFACE  the interface for tcpreplay to replay to"
+	echo "    PASAD   the Pasad command to execute (optional)"
 	exit 1
 fi
 
@@ -52,6 +67,11 @@ BRO_SCRIPT=$1
 BRO_INTERFACE=$2
 TCPREPLAY_DUMP=$3
 TCPREPLAY_INTERFACE=$4
+PASAD=""
+if [[ $# -eq 5 ]]
+then
+	PASAD=$5
+fi
 
 SPEEDS=(100 50 25)
 COUNTS=(1000000 2000000 4000000)
