@@ -30,6 +30,7 @@ struct fifo_q{
     int valuesReceived;
     int valuesReleased;
     sem_t bufferEmptyBlock;
+    sem_t bufferFullBlock;
     sem_t lock;
 };
 

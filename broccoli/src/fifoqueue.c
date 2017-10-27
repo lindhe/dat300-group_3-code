@@ -19,6 +19,7 @@ init_queue(int size)
     q->valuesReleased = 0;
     /*Queue empty from the beginning (block)*/
     sem_init(&q->bufferEmptyBlock, 0, 0);
+    sem_init(&q->bufferFullBlock, 0, size);
     sem_init(&q->lock, 0, 1);
     return q;
 }
@@ -50,15 +51,16 @@ add_to_queue(Fifo_q * q, Sensor_t * sensor)
         free(sensor); //free if not appended
         return -1;    
     } 
-    else if(is_full(q)){
-        /* Drop Least Recently or Drop Most Recently */
-        #ifdef DLR
-            pop_from_queue(q);
-        #endif
+    /* Drop Least Recently or Drop Most Recently */
+    #ifdef DLR
+    if(is_full(q)){
+        pop_from_queue(q);
         q->droppedValues++;
-        free(sensor); //free if not appended
         return 0;
     }
+    #else
+    sem_wait(&q->bufferFullBlock);
+    #endif
     sem_wait(&q->lock);
     Queue_t * new_elem = (Queue_t *) malloc(sizeof(Queue_t));
     new_elem->next = NULL;
@@ -94,10 +96,10 @@ pop_from_queue(Fifo_q * q)
     }
     free(head);
     q->currentSize--;
-    #ifndef DLR
-    q->valuesReleased++;
-    #endif
     sem_post(&q->lock);
+    #ifndef DLR
+    sem_post(&q->bufferFullBlock);
+    #endif
     return sensor;
 } 
 
