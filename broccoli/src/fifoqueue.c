@@ -96,6 +96,7 @@ pop_from_queue(Fifo_q * q)
     }
     free(head);
     q->currentSize--;
+    q->valuesReleased++;
     sem_post(&q->lock);
     #ifndef DLR
     sem_post(&q->bufferFullBlock);
