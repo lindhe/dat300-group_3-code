@@ -5,7 +5,9 @@
 #     sudo bash -c "$@"
 # Or for remote execution:
 #     ssh -i ~/.ssh/id_rsa root@remote "$@"
-# Make sure that the command is executed by root.
+# Make sure that the command is executed by root, and that root has
+# ~/.ssh/id_rsa.
+# Also note that the remote tests assumes no sudo password needed.
 
 function execute_command {
 	# bash -c "$@"
