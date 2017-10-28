@@ -1,5 +1,5 @@
 # Example usage:
-# bro -b -C -i eth0 modbus.bro
+# bro -b -C -i eth0 modbus.bro Log::default_writer=Log::WRITER_NONE
 @load frameworks/communication/listen
 @load base/protocols/modbus
 
