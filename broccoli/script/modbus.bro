@@ -1,3 +1,5 @@
+# Example usage:
+# bro -b -C -i eth0 modbus.bro
 @load frameworks/communication/listen
 @load base/protocols/modbus
 
