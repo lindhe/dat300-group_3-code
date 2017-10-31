@@ -3,6 +3,8 @@
 Created by Robert Gustafsson, Robin Krahl and Andreas Lindhé in DAT300 2017 at
 Chalmers University of Technology. Copyright belongs to the authors.
 
+All code is published under the MIT license: https://opensource.org/licenses/MIT
+
 ## Dependencies
 
 These dependencies are packaged in the Debian repositories, but are also
