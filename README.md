@@ -26,12 +26,14 @@ The commands below assume you are in the root directory of this repository.
 
 ### 0. Compile & export path
 
-`make && make midbro_test`
-`export export LD_LIBRARY_PATH=$(pwd)/lib`
+`make`
+`export LD_LIBRARY_PATH=$(pwd)/lib`
+
+**Example:** `make midbro_test`
 
 ### 1. Start Bro
 
-`sudo bro -b -C -i lo script/modbus.bro Log::default_writer=Log::WRITER_NONE`
+`sudo bro -b -C -i lo script/mid.bro Log::default_writer=Log::WRITER_NONE`
 
 ### 2. Start the consumer (`midbro_test`)
 
