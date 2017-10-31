@@ -1,6 +1,6 @@
-broccoli/bin/
-broccoli/build/
-broccoli/script/.state/
-broccoli/lib/
+bin/
+build/
+.state/
+lib/
 *.o
 *.log
