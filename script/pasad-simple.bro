@@ -5,7 +5,7 @@
 ## requests and responses are exchanged within the same connection.  I am not
 ## sure whether this really holds.
 
-module Pasad;
+module Midbro;
 
 export {
 	redef enum Log::ID += { LOG };
@@ -25,12 +25,12 @@ export {
 }
 
 redef record connection += {
-	pasad: Info &optional;
+	midbro: Info &optional;
 };
 
 event bro_init() &priority=5
 	{
-	Log::create_stream(Pasad::LOG, [$columns=Info, $path="pasad-simple"]);
+	Log::create_stream(Midbro::LOG, [$columns=Info, $path="midbro-simple"]);
 	}
 
 event modbus_read_holding_registers_request(c: connection, headers: ModbusHeaders, start_address: count, quantity: count)
@@ -44,13 +44,13 @@ event modbus_read_holding_registers_request(c: connection, headers: ModbusHeader
 		$ip_orig=c$id$orig_h,
 		$ip_resp=c$id$resp_h
 	];
-	c$pasad = rec;
+	c$midbro = rec;
 	}
 
 event modbus_read_holding_registers_response(c: connection, headers: ModbusHeaders, registers: ModbusRegisters)
 	{
-		c$pasad$tid_response = headers$tid;
-		c$pasad$ts_response = network_time();
-		c$pasad$registers = registers;
-		Log::write(Pasad::LOG, c$pasad);
+		c$midbro$tid_response = headers$tid;
+		c$midbro$ts_response = network_time();
+		c$midbro$registers = registers;
+		Log::write(Midbro::LOG, c$midbro);
 	}

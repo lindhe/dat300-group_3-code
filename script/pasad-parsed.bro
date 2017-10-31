@@ -2,7 +2,7 @@
 ## value. The correct register count is not checked and might lead to indexing
 ## errors.
 
-module Pasad;
+module Midbro;
 
 ## DATA STRUCTURES
 
@@ -30,24 +30,24 @@ export {
 }
 
 redef record connection += {
-	pasad: Info	&default=Info();
+	midbro: Info	&default=Info();
 };
 
 ## CUSTOM EVENTS
 
-event pasad_entry(entry: Entry)
+event midbro_entry(entry: Entry)
 	{
-	Log::write(Pasad::LOG, entry);
+	Log::write(Midbro::LOG, entry);
 	}
 
-event pasad_unmatched(tid: count)
+event midbro_unmatched(tid: count)
 	{
 	print fmt("Unmatched response: tid=%d", tid);
 	}
 
 ## CUSTOM FUNCTIONS
 
-function pasad_generate_events(transaction: Transaction, c: connection, headers: ModbusHeaders, registers: ModbusRegisters, regtype: string)
+function midbro_generate_events(transaction: Transaction, c: connection, headers: ModbusHeaders, registers: ModbusRegisters, regtype: string)
 	{
 	# TODO: check registers size
 	local i = 0;
@@ -60,7 +60,7 @@ function pasad_generate_events(transaction: Transaction, c: connection, headers:
 			$address=transaction$start_address + i,
 			$register=registers[i]
 		);
-		event pasad_entry(entry);
+		event midbro_entry(entry);
 		++i;
 		}
 	}
@@ -69,7 +69,7 @@ function pasad_generate_events(transaction: Transaction, c: connection, headers:
 
 event bro_init() &priority=5
 	{
-	Log::create_stream(Pasad::LOG, [$columns=Entry, $path="pasad-parsed"]);
+	Log::create_stream(Midbro::LOG, [$columns=Entry, $path="midbro-parsed"]);
 	}
 
 event modbus_read_holding_registers_request(c: connection, headers: ModbusHeaders, start_address: count, quantity: count)
@@ -79,18 +79,18 @@ event modbus_read_holding_registers_request(c: connection, headers: ModbusHeader
 		$start_address=start_address,
 		$quantity=quantity
 	);
-	c$pasad$transactions[tid] = transaction;
+	c$midbro$transactions[tid] = transaction;
 	}
 
 event modbus_read_holding_registers_response(c: connection, headers: ModbusHeaders, registers: ModbusRegisters)
 	{
 	local tid = headers$tid;
-	if ( tid !in c$pasad$transactions )
+	if ( tid !in c$midbro$transactions )
 		{
-		event pasad_unmatched(tid);
+		event midbro_unmatched(tid);
 		return;
 		}
-	local transaction = c$pasad$transactions[tid];
-	delete c$pasad$transactions[tid];
-	pasad_generate_events(transaction, c, headers, registers, "h");
+	local transaction = c$midbro$transactions[tid];
+	delete c$midbro$transactions[tid];
+	midbro_generate_events(transaction, c, headers, registers, "h");
 	}

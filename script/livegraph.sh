@@ -2,7 +2,7 @@
 
 if [[ $# -ne 1 ]]
 then
-	echo "Reads the sensor.dat and distance.dat from a running Pasad"
+	echo "Reads the sensor.dat and distance.dat"
 	echo "instance and draws a graph from them."
 	echo
 	echo "Usage:"
@@ -17,10 +17,10 @@ then
 fi
 
 function plot() {
-	scp -i /home/andreas/.ssh/pasadpi_rsa -P 8022 "${SCP_EXPR}/sensor.dat" "${SCP_EXPR}/distance.dat" .
+	scp -i /path/to/id_rsa -P 8022 "${SCP_EXPR}/sensor.dat" "${SCP_EXPR}/distance.dat" .
 	tail -1000 sensor.dat > sensor-1000.dat
 	tail -1000 distance.dat > distance-1000.dat
-	echo "set terminal png; set yrange [17000:17300]; set y2range [0:300]; set ytics nomirror; set y2tics nomirror; set title 'Midbro/PASAD demo'; set ylabel 'sensor value'; set y2label 'distance'; plot 'sensor-1000.dat' using 0:1 with line title 'sensor value', 'distance-1000.dat' using 0:1 axis x1y2 with line title 'distance'" | gnuplot > live-tmp.png
+	echo "set terminal png; set yrange [17000:17300]; set y2range [0:300]; set ytics nomirror; set y2tics nomirror; set title 'Midbro demo'; set ylabel 'sensor value'; set y2label 'distance'; plot 'sensor-1000.dat' using 0:1 with line title 'sensor value', 'distance-1000.dat' using 0:1 axis x1y2 with line title 'distance'" | gnuplot > live-tmp.png
 	mv live-tmp.png live.png
 }
 

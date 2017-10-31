@@ -11,7 +11,7 @@
 
 function execute_command {
 	# bash -c "$@"
-	ssh -i ~/.ssh/pasadpi_rsa pi@pasadpi2 "sudo bash -c '$@'"
+	ssh -i ~/.ssh/id_rsa pi@raspberry "sudo bash -c '$@'"
 }
 
 function measure_packets {
@@ -20,14 +20,13 @@ function measure_packets {
 
 	BRO_PID=$(execute_command "bro -i \"${BRO_INTERFACE}\" -C -b Log::default_writer=Log::WRITER_NONE \"${BRO_SCRIPT}\" > ${BRO_DIR}/bro-out.txt 2> ${BRO_DIR}/bro-err.txt & echo \$!")
 
-	PASAD_PID=""
-	if [[ -n "${PASAD}" ]]
+	IDS_PID=""
+	if [[ -n "${IDS}" ]]
 	then
-		# We also want to execute a Pasad instance
 		# Wait for Bro to be ready
 		execute_command "tail -f ${BRO_DIR}/bro-err.txt | while read LOGLINE ; do [[ \"\${LOGLINE}\" == *\"listening on \"* ]] && pkill -P \$\$ tail ; done"
-		# Start Pasad
-		PASAD_PID=$(execute_command "${PASAD} > ${BRO_DIR}/pasad-out.txt 2> ${BRO_DIR}/pasad-err.txt & echo \$!")
+		# Start IDS
+		IDS_PID=$(execute_command "${IDS} > ${BRO_DIR}/ids-out.txt 2> ${BRO_DIR}/ids-err.txt & echo \$!")
 	fi
 
 	tcpreplay -i ${TCPREPLAY_INTERFACE} -M ${TCPREPLAY_SPEED} -L ${TCPREPLAY_COUNT} ${TCPREPLAY_DUMP} > /dev/null 2> /dev/null
@@ -39,9 +38,9 @@ function measure_packets {
 		PCPU=$(execute_command "ps -q ${BRO_PID} -o pcpu --no-headers")
 	done
 
-	if [[ -n "${PASAD_PID}" ]]
+	if [[ -n "${IDS_PID}" ]]
 	then
-		execute_command "kill -SIGINT \"${PASAD_PID}\""
+		execute_command "kill -SIGINT \"${IDS_PID}\""
 	fi
 	execute_command "kill -SIGINT \"${BRO_PID}\""
 	execute_command "while kill -0 ${BRO_PID} 2>/dev/null ; do sleep 0.1 ; done"
@@ -55,13 +54,13 @@ then
 	echo "received and handled by Bro."
 	echo
 	echo "Usage:"
-	echo "    $0 SCRIPT BIFACE DUMP TIFACE [PASAD]"
+	echo "    $0 SCRIPT BIFACE DUMP TIFACE"
 	echo "Arguments:"
 	echo "    SCRIPT  the Bro script to execute"
 	echo "    BIFACE  the interface for Bro to listen on"
 	echo "    DUMP    the network dump to replay"
 	echo "    TIFACE  the interface for tcpreplay to replay to"
-	echo "    PASAD   the Pasad command to execute (optional)"
+	echo "    IDS     the IDS command to execute (optional)"
 	exit 1
 fi
 
@@ -69,10 +68,10 @@ BRO_SCRIPT=$1
 BRO_INTERFACE=$2
 TCPREPLAY_DUMP=$3
 TCPREPLAY_INTERFACE=$4
-PASAD=""
+IDS=""
 if [[ $# -eq 5 ]]
 then
-	PASAD=$5
+	IDS=$5
 fi
 
 SPEEDS=(100 50 25)

@@ -3,7 +3,7 @@
 @load frameworks/communication/listen
 @load base/protocols/modbus
 
-module Pasad;
+module Midbro;
 
 redef Pcap::bufsize = 256;
 
@@ -44,29 +44,29 @@ export {
 }
 
 redef record connection += {
-    pasad: Info &default=Info();
+    midbro: Info &default=Info();
 };
 
 redef Communication::nodes += {
-    ["pasad"] = [$host = 127.0.0.1, $events = /pasad/, $connect=F, $ssl=F]
+    ["midbro"] = [$host = 127.0.0.1, $events = /midbro/, $connect=F, $ssl=F]
 };
 
 ## CUSTOM EVENTS
 
-event pasad_register_received(data: RegisterData) {
-    Log::write(Pasad::LOG, data);
+event modbus_register_received(data: RegisterData) {
+    Log::write(Midbro::LOG, data);
     if(verbose)
         print fmt("Received address=%d, register=%d", data$address, data$register);
 }
 
-event pasad_unmatched_response(tid: count) {
+event modbus_unmatched_response(tid: count) {
     if(verbose)
         print fmt("Unmatched response: tid=%d", tid);
 }
 
 ## CUSTOM FUNCTIONS
 
-function pasad_check_filter(ip: addr, start_address: count, quantity: count) : bool {
+function modbus_check_filter(ip: addr, start_address: count, quantity: count) : bool {
     if (!enable_filtering)
         return T;
     if (ip != filter_ip_addr)
@@ -79,7 +79,7 @@ function pasad_check_filter(ip: addr, start_address: count, quantity: count) : b
     return filter_mem_addr < start_address + quantity;
 }
 
-function pasad_generate_event(transaction: Transaction, c: connection,
+function midbro_generate_event(transaction: Transaction, c: connection,
         headers: ModbusHeaders, registers: ModbusRegisters, regtype: string,
         i: count) {
     local data = RegisterData(
@@ -89,21 +89,21 @@ function pasad_generate_event(transaction: Transaction, c: connection,
             $address=transaction$start_address + i,
             $register=registers[i]
     );
-    event pasad_register_received(data);
+    event modbus_register_received(data);
 }
 
-function pasad_generate_events(transaction: Transaction, c: connection,
+function midbro_generate_events(transaction: Transaction, c: connection,
         headers: ModbusHeaders, registers: ModbusRegisters, regtype: string) {
     # TODO: check registers size
     if (enable_filtering) {
         if(verbose)
             print fmt("%d   %d    %d", filter_mem_addr, transaction$start_address, transaction$quantity);
-        pasad_generate_event(transaction, c, headers, registers, regtype,
+        midbro_generate_event(transaction, c, headers, registers, regtype,
                 filter_mem_addr - transaction$start_address);
     } else {
         local i = 0;
         while (i < transaction$quantity) {
-            pasad_generate_event(transaction, c, headers, registers, regtype, i);
+            midbro_generate_event(transaction, c, headers, registers, regtype, i);
             ++i;
         }
     }
@@ -112,12 +112,12 @@ function pasad_generate_events(transaction: Transaction, c: connection,
 ## EVENT HANDLERS
 
 event bro_init() &priority=5 {
-    Log::create_stream(Pasad::LOG, [$columns=RegisterData, $path="pasad-parsed"]);
+    Log::create_stream(Midbro::LOG, [$columns=RegisterData, $path="midbro-parsed"]);
 }
 
 event modbus_read_holding_registers_request(c: connection,
         headers: ModbusHeaders, start_address: count, quantity: count) {
-    if (!pasad_check_filter(c$id$resp_h, start_address, quantity)) {
+    if (!midbro_check_filter(c$id$resp_h, start_address, quantity)) {
         if(verbose)
             print fmt("Filtered %s/%d/%d", c$id$resp_h, start_address, quantity);
         return;
@@ -128,23 +128,23 @@ event modbus_read_holding_registers_request(c: connection,
             $start_address=start_address,
             $quantity=quantity
     );
-    c$pasad$transactions[tid] = transaction;
+    c$midbro$transactions[tid] = transaction;
 }
 
 event modbus_read_holding_registers_response(c: connection,
         headers: ModbusHeaders, registers: ModbusRegisters) {
-    if (!pasad_check_filter(c$id$resp_h, 0, 0)) {
+    if (!midbro_check_filter(c$id$resp_h, 0, 0)) {
         if(verbose)
             print fmt("Filtered %s", c$id$resp_h);
         return;
     }
 
     local tid = headers$tid;
-    if (tid !in c$pasad$transactions) {
-        event pasad_unmatched_response(tid);
+    if (tid !in c$midbro$transactions) {
+        event midbro_unmatched_response(tid);
         return;
     }
-    local transaction = c$pasad$transactions[tid];
-    delete c$pasad$transactions[tid];
-    pasad_generate_events(transaction, c, headers, registers, "h");
+    local transaction = c$midbro$transactions[tid];
+    delete c$midbro$transactions[tid];
+    midbro_generate_events(transaction, c, headers, registers, "h");
 }

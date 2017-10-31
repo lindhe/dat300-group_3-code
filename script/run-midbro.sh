@@ -16,10 +16,10 @@ SCRIPT=$(realpath $2)
 BRODIR=$(realpath "$(dirname "$0")/../..")
 BROLOG=$(realpath bro.log)
 
-MIDBRO=${BRODIR}/broccoli/bin/midbropasad
+MIDBRO=${BRODIR}/bin/midbro
 MIDBROLOG=$(realpath midbro.log)
 
-TMPDIR=$(mktemp --directory --tmpdir pasad.XXXX)
+TMPDIR=$(mktemp --directory --tmpdir midbro.XXXX)
 
 echo "* Starting Bro in background ..."
 cd "${TMPDIR}" && sudo bro -i "${INTERFACE}" "${SCRIPT}" > ${BROLOG} 2>&1 &

@@ -55,7 +55,7 @@ bro_event_listener(void * args)
     bro_debug_calltrace = 0;
     bro_debug_messages  = 0;
 
-    bro_event_registry_add(bc, "pasad_register_received",
+    bro_event_registry_add(bc, "modbus_register_received",
             (BroEventFunc) modbus_register_received, NULL);
 
     if (! bro_conn_connect(bc))

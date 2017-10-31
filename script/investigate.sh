@@ -6,7 +6,7 @@ then
 	echo "and stores both the data and a plot in the current directory."
 	echo
 	echo "Usage: $0 DUMP IP ADDR"
-	echo "Example: $0 packets_00014_20161128135616.cap 192.168.215.66 64"
+	echo "Example: $0 livedata.cap 192.168.0.53 64"
 	exit
 fi
 
@@ -21,9 +21,9 @@ FILTER_MACHINE=$2
 FILTER_REGISTER=$3
 
 BRODIR=$(realpath "$(dirname "$0")/../..")
-BROSCRIPT_BASE=${BRODIR}/broccoli/script/modbus.bro
+BROSCRIPT_BASE=${BRODIR}/script/modbus.bro
 
-TMPDIR=$(mktemp --tmpdir --directory pasad.XXXX)
+TMPDIR=$(mktemp --tmpdir --directory midbro.XXXX)
 TMPDIR_BRO=${TMPDIR}/bro
 BROSCRIPT_MOD=${TMPDIR}/modbus.bro
 
@@ -43,7 +43,7 @@ cd "${TMPDIR_BRO}"
 bro -r "${CAPTURE_FILE}" "${BROSCRIPT_MOD}" > /dev/null
 
 echo " * Extracting data ..."
-tail -n +9 "${TMPDIR_BRO}/pasad-parsed.log" | cut -f 5 > "${OUTFILE_DAT}"
+tail -n +9 "${TMPDIR_BRO}/midbro-parsed.log" | cut -f 5 > "${OUTFILE_DAT}"
 echo "${OUTFILE_DAT}"
 
 echo " * Generating graph ..."

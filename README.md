@@ -1,4 +1,4 @@
-# Midbro – Packet Capturing for the PASAD IDS
+# Midbro – Packet Capturing for Intrusion Detection Systems
 
 Created by Robert Gustafsson, Robin Krahl and Andreas Lindhé in DAT300 2017 at
 Chalmers University of Technology. Copyright belongs to the authors.
@@ -16,7 +16,7 @@ available on other platforms.
 
 0. Compile and export library path
 1. Start Bro
-2. Start the consumer (PASAD or midbro_test)
+2. Start the consumer (midbro_test)
 3. Send network traffic
 
 
@@ -33,11 +33,9 @@ The commands below assume you are in the root directory of this repository.
 
 `sudo bro -b -C -i lo script/modbus.bro Log::default_writer=Log::WRITER_NONE`
 
-### 2. Start the consumer
+### 2. Start the consumer (`midbro_test`)
 
-**PASAD:** `cd data; ../bin/pasad 1000 500 18`
-
-**midbro_test:** `./bin/midbro_test`
+`./bin/midbro_test`
 
 ### 3. Send network traffic
 
