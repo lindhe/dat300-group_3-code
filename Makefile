@@ -7,6 +7,10 @@ DEBUG =
 SRC = midbro.c broevent.c fifoqueue.c
 OBJ = $(patsubst %.c, build/%.o, $(SRC))
 
+PREFIX = $(DESTDIR)/usr/local
+
+.PHONY: all dirs clean install uninstall lib/midbro bin/tests
+
 all: dirs lib/midbro
 
 dirs:
@@ -29,3 +33,13 @@ build/tests.o: test/tests.c
 
 clean:
 	rm build/* bin/*
+
+install: lib/midbro
+	mkdir -p "$(PREFIX)/include"
+	mkdir -p "$(PREFIX)/lib"
+	cp -p include/midbro.h "$(PREFIX)/include/"
+	cp -p lib/libmidbro.so "$(PREFIX)/lib/"
+
+uninstall:
+	rm -f "$(PREFIX)/include/midbro.h"
+	rm -f "$(PREFIX)/lib/libmidbro.so"
