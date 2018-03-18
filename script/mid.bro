@@ -163,7 +163,7 @@ event modbus_read_holding_registers_response(c: connection,
 
     local tid = headers$tid;
     if (tid !in c$midbro$transactions) {
-        event midbro_unmatched_response(tid);
+        event modbus_unmatched_response(tid);
         return;
     }
     local transaction = c$midbro$transactions[tid];
