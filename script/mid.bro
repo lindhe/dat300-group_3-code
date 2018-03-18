@@ -131,14 +131,8 @@ function midbro_generate_events(transaction: Transaction, c: connection,
     }
 }
 
-## EVENT HANDLERS
-
-event bro_init() &priority=5 {
-    Log::create_stream(Midbro::LOG, [$columns=RegisterData, $path="midbro-parsed"]);
-}
-
-event modbus_read_holding_registers_request(c: connection,
-        headers: ModbusHeaders, start_address: count, quantity: count) {
+function midbro_handle_read_request(c: connection, headers: ModbusHeaders,
+        start_address: count, quantity: count) {
     if (!midbro_check_filter(c$id$resp_h, start_address, quantity)) {
         if(verbose)
             print fmt("Filtered %s/%d/%d", c$id$resp_h, start_address, quantity);
@@ -153,8 +147,8 @@ event modbus_read_holding_registers_request(c: connection,
     c$midbro$transactions[tid] = transaction;
 }
 
-event modbus_read_holding_registers_response(c: connection,
-        headers: ModbusHeaders, registers: ModbusRegisters) {
+function midbro_handle_read_response(c: connection, headers: ModbusHeaders,
+        registers: ModbusRegisters, regtype: string) {
     if (!midbro_check_filter(c$id$resp_h, 0, 0)) {
         if(verbose)
             print fmt("Filtered %s", c$id$resp_h);
@@ -168,5 +162,52 @@ event modbus_read_holding_registers_response(c: connection,
     }
     local transaction = c$midbro$transactions[tid];
     delete c$midbro$transactions[tid];
-    midbro_generate_events(transaction, c, headers, registers, "h");
+    midbro_generate_events(transaction, c, headers, registers, regtype);
+}
+
+function midbro_handle_write_request(c: connection, headers: ModbusHeaders,
+        start_address: count, registers: ModbusRegisters, regtype: string) {
+    local quantity = |registers|;
+    if (!midbro_check_filter(c$id$resp_h, start_address, quantity)) {
+        if(verbose)
+            print fmt("Filtered %s/%d/%d", c$id$resp_h, start_address, quantity);
+        return;
+    }
+
+    local transaction = Transaction(
+            $start_address=start_address,
+            $quantity=quantity
+    );
+    midbro_generate_events(transaction, c, headers, registers, regtype);
+}
+
+## EVENT HANDLERS
+
+event bro_init() &priority=5 {
+    Log::create_stream(Midbro::LOG, [$columns=RegisterData, $path="midbro-parsed"]);
+}
+
+event modbus_read_holding_registers_request(c: connection,
+        headers: ModbusHeaders, start_address: count, quantity: count) {
+    midbro_handle_read_request(c, headers, start_address, quantity);
+}
+
+event modbus_read_holding_registers_response(c: connection,
+        headers: ModbusHeaders, registers: ModbusRegisters) {
+    midbro_handle_read_response(c, headers, registers, "h");
+}
+
+event modbus_read_input_registers_request(c: connection,
+        headers: ModbusHeaders, start_address: count, quantity: count) {
+    midbro_handle_read_request(c, headers, start_address, quantity);
+}
+
+event modbus_read_input_registers_response(c: connection,
+        headers: ModbusHeaders, registers: ModbusRegisters) {
+    midbro_handle_read_response(c, headers, registers, "i");
+}
+
+event modbus_write_multiple_registers_request(c: connection, headers: ModbusHeaders,
+        start_address: count, registers: ModbusRegisters) {
+    midbro_handle_write_request(c, headers, start_address, registers, "i");
 }
