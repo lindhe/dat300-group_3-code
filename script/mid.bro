@@ -88,7 +88,7 @@ event modbus_unmatched_response(tid: count) {
 
 ## CUSTOM FUNCTIONS
 
-function modbus_check_filter(ip: addr, start_address: count, quantity: count) : bool {
+function midbro_check_filter(ip: addr, start_address: count, quantity: count) : bool {
     if (!enable_filtering)
         return T;
     if (ip != filter_ip_addr)
