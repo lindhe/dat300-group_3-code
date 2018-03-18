@@ -37,7 +37,7 @@ clean:
 install: lib/midbro
 	mkdir -p "$(PREFIX)/include"
 	mkdir -p "$(PREFIX)/lib"
-	cp -p include/midbro.h "$(PREFIX)/include/"
+	cp -p includes/midbro.h "$(PREFIX)/include/"
 	cp -p lib/libmidbro.so "$(PREFIX)/lib/"
 
 uninstall:
