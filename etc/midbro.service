@@ -1,0 +1,9 @@
+[Target]
+Description=midbro
+
+[Service]
+Exec=/usr/bin/bro -b -C -i eth0 /usr/local/share/midbro/mid.bro Log::default_writer=Log::WRITER_NONE
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
