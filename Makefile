@@ -16,17 +16,17 @@ else
 	CPPFLAGS += -DDEBUG
 endif
 
-.PHONY: all dirs clean install uninstall lib/midbro bin/tests
+.PHONY: all dirs clean install uninstall bin/tests
 
-all: dirs lib/midbro
+all: dirs lib/libmidbro.so
 
 dirs:
 	mkdir -p build bin lib
 
-lib/midbro: $(OBJ)
-	$(CC) -shared $^ -o lib/libmidbro.so $(LDFLAGS)
+lib/libmidbro.so: $(OBJ)
+	$(CC) -shared $^ -o "$@" $(LDFLAGS)
 
-midbro_test:
+bin/midbro_test:
 	$(CC) test/midbro_test.c -I./includes -o bin/midbro_test -L./lib -lmidbro
 
 build/%.o: src/%.c
@@ -41,7 +41,7 @@ build/tests.o: test/tests.c
 clean:
 	rm build/* bin/*
 
-install: lib/midbro
+install: lib/libmidbro.so
 	mkdir -p "$(PREFIX)/include"
 	mkdir -p "$(PREFIX)/lib"
 	cp -p includes/midbro.h "$(PREFIX)/include/"
