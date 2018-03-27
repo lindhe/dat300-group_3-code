@@ -44,8 +44,10 @@ clean:
 install: lib/libmidbro.so
 	mkdir -p "$(PREFIX)/include"
 	mkdir -p "$(PREFIX)/lib"
+	mkdir -p "$(PREFIX)/share/midbro"
 	cp -p includes/midbro.h "$(PREFIX)/include/"
 	cp -p lib/libmidbro.so "$(PREFIX)/lib/"
+	cp -p script/mid.bro "$(PREFIX)/share/midbro"
 
 uninstall:
 	rm -f "$(PREFIX)/include/midbro.h"
