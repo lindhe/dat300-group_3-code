@@ -3,11 +3,18 @@ LIBCFLAGS =-c -fPIC -DBROCCOLI
 CFLAGS =-c -DBROCCOLI
 INC =-I/usr/local/include -I/usr/local/include -I./includes
 LDFLAGS =  -L/usr/local/lib -lbroccoli -pthread
-DEBUG =
 SRC = midbro.c broevent.c fifoqueue.c
 OBJ = $(patsubst %.c, build/%.o, $(SRC))
 
 PREFIX = $(DESTDIR)/usr/local
+
+ifneq ($(DEBUG), 1)
+	CFLAGS += -O2
+	CPPFLAGS += -DNDEBUG
+else
+	CFLAGS += -g
+	CPPFLAGS += -DDEBUG
+endif
 
 .PHONY: all dirs clean install uninstall lib/midbro bin/tests
 
@@ -23,7 +30,7 @@ midbro_test:
 	$(CC) test/midbro_test.c -I./includes -o bin/midbro_test -L./lib -lmidbro
 
 build/%.o: src/%.c
-	$(CC) $(LIBCFLAGS) $(DEBUG) $(INC) $< -o $@
+	$(CC) $(LIBCFLAGS) $(INC) $< -o $@
 
 bin/tests: build/fifoqueue.o build/tests.o
 	$(CC) $^ -o bin/tests $(LDFLAGS)

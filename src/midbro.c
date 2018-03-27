@@ -61,7 +61,9 @@ request_n_values(int number, int arrayOfValues[])
         arrayOfValues[i] = sensor->value;
         free(sensor);
     }
+#ifdef DEBUG
     printf("Release %d sensor data values\n", number);
+#endif
 }
     int
 request_value()
@@ -71,7 +73,9 @@ request_value()
     sensor = pop_from_queue(queue);
     value = sensor->value;
     free(sensor);
+#ifdef DEBUG
     printf("Release 1 sensor data value\n");
+#endif
     return value;
 }
 
