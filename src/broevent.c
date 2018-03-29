@@ -22,6 +22,8 @@
  * SOFTWARE.
  */
 
+#include <unistd.h>
+
 #include "fifoqueue.h"
 #include "broevent.h"
 #ifdef BROCCOLI
@@ -82,11 +84,11 @@ bro_event_listener(void * args)
     bro_event_registry_add(bc, "modbus_register_received",
             (BroEventFunc) modbus_register_received, NULL);
 
-    if (! bro_conn_connect(bc))
+    while (! bro_conn_connect(bc))
     {
-        printf("Could not connect to Bro at %s:%s.\n", host_default,
-                port_default);
-        exit(-1);
+        printf("Could not connect to Bro at %s:%s.  Retrying in one second.\n",
+            host_default, port_default);
+        sleep(1);
     }
 
     fd =bro_conn_get_fd(bc);
