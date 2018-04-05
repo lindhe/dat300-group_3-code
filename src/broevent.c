@@ -90,6 +90,7 @@ bro_event_listener(void * args)
             host_default, port_default);
         sleep(1);
     }
+    printf("Successfully connected to Bro.\n");
 
     fd =bro_conn_get_fd(bc);
     fd_set rfds;
