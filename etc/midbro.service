@@ -2,7 +2,7 @@
 Description=midbro
 
 [Service]
-ExecStart=/usr/bin/bro -b -C -i lo /usr/local/share/midbro/mid.bro Log::default_writer=Log::WRITER_NONE
+ExecStart=/usr/bin/bro -b -C -i eth0 /usr/local/share/midbro/mid.bro Log::default_writer=Log::WRITER_NONE
 Restart=always
 
 [Install]
