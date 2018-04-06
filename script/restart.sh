@@ -17,5 +17,6 @@ fi
 
 tswithoffset=$(($lastts + $offset))
 if [ $now -gt $tswithoffset ]; then
-    echo "Restart"
+    echo "Restart $now"
+    #reboot
 fi
