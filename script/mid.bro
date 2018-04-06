@@ -126,7 +126,7 @@ function midbro_generate_events(transaction: Transaction, c: connection,
             local val = registers[filter_mem_addr - transaction$start_address];
             local other_val = registers[filter_mem_addr - transaction$start_address - 1];
             local f = open_for_append("/home/pi/data/pasad/values_other.txt");
-            print f, val, other_val;
+            print f, current_time(), val, other_val;
             close(f);
         }
     } else {
