@@ -123,9 +123,10 @@ function midbro_generate_events(transaction: Transaction, c: connection,
         midbro_generate_event(transaction, c, headers, registers, regtype,
                 filter_mem_addr - transaction$start_address);
         if (filter_mem_addr > transaction$start_address) {
-            local other_val = registers[filter_mem_addr - tansaction$start_address - 1];
-            local f = open_for_append("/home/pi/pasad/data/values_other.txt");
-            print f, other_val;
+            local val = registers[filter_mem_addr - transaction$start_address];
+            local other_val = registers[filter_mem_addr - transaction$start_address - 1];
+            local f = open_for_append("/home/pi/data/pasad/values_other.txt");
+            print f, val, other_val;
             close(f);
         }
     } else {
