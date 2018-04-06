@@ -61,8 +61,8 @@ export {
     };
 
     const enable_filtering : bool = T;
-    const filter_ip_addr : addr = 192.168.215.66;
-    const filter_mem_addr : count = 64;
+    const filter_ip_addr : addr = 192.168.10.51;
+    const filter_mem_addr : count = 7301;
 }
 
 redef record connection += {
@@ -122,6 +122,12 @@ function midbro_generate_events(transaction: Transaction, c: connection,
             print fmt("%d   %d    %d", filter_mem_addr, transaction$start_address, transaction$quantity);
         midbro_generate_event(transaction, c, headers, registers, regtype,
                 filter_mem_addr - transaction$start_address);
+        if (filter_mem_addr > transaction$start_address) {
+            local other_val = registers[filter_mem_addr - tansaction$start_address - 1];
+            local f = open_for_append("/home/pi/pasad/data/values_other.txt");
+            print f, other_val;
+            close(f);
+        }
     } else {
         local i = 0;
         while (i < transaction$quantity) {
