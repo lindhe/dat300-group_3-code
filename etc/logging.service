@@ -1,0 +1,9 @@
+[Unit]
+Description=logging
+
+[Service]
+ExecStart=/home/pi/midbro/script/logging.py /home/pi/data/log/sysinfo.log
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

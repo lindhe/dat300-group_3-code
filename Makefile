@@ -49,6 +49,7 @@ install: lib/libmidbro.so
 	cp -p lib/libmidbro.so "$(PREFIX)/lib/"
 	cp -p script/mid.bro "$(PREFIX)/share/midbro"
 	cp -p etc/midbro.service "/etc/systemd/system"
+	cp -p etc/logging.service "/etc/systemd/system"
 
 uninstall:
 	rm -f "$(PREFIX)/include/midbro.h"
