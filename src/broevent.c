@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 
+#include <stdlib.h>
 #include <unistd.h>
 
 #include "fifoqueue.h"
@@ -109,4 +110,5 @@ bro_event_listener(void * args)
     }
 
     bro_conn_delete(bc);
+    abort();
 }
